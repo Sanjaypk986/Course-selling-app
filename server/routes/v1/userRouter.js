@@ -1,12 +1,10 @@
 import express from 'express'
+import { createUser } from '../../controllers/userController.js';
 
 const router = express.Router()
 
-router.get('/',async(req,res)=>{
-    console.log("get request accessed");
-    
-})
-router.post('/',async(req,res)=>{
+router.get('/create',createUser)
+router.post('/logout',async(req,res)=>{
     console.log("post request accessed");
     
 })
