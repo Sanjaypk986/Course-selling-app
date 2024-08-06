@@ -1,12 +1,14 @@
 import express from 'express'
-import { createUser } from '../../controllers/userController.js';
+import { checkUser, createUser, loginUser, userProfile } from '../../controllers/userController.js';
+import { authUser } from '../../middlewares/authUser.js';
 
 const router = express.Router()
 
-router.get('/create',createUser)
-router.post('/logout',async(req,res)=>{
-    console.log("post request accessed");
-    
-})
+router.post('/create',createUser)
+router.post('/login',loginUser)
+router.get('/profile/:id',authUser,userProfile)
+
+// for front-end routing
+router.get('/check-user',authUser,checkUser)
 
 export default router
