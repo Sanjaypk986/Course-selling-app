@@ -1,3 +1,4 @@
+import { cloudinaryInstance } from "../config/cloudinaryConfig.js";
 import { Course } from "../models/courseModel.js";
 
 // get all courses
@@ -17,9 +18,24 @@ export const getAllCourse = async (req, res, next) => {
 export const createCourse = async (req, res, next) => {
   try {
     // destructure
-    const { title, description, image, duration, instructor } = req.body;
+    const { title, description, duration, instructor } = req.body;
+
+    if (!req.file) {
+      return res.status(400).json({success:false , message:'image not available'})
+    }
+    // course already exists
+    const courseExists = await Course.findOne({title:title})
+    if (courseExists) {
+      return res.status(400).json({ message:'Course already exists'})
+    }
+    // Upload an image cloudinary
+    const uploadResult = await cloudinaryInstance.uploader
+      .upload(req.file.path)
+      .catch((error) => {
+        console.log(error);
+      });
     //  validation for checking all fields are available
-    if (!title || !description || !image || !duration) {
+    if (!title || !description || !duration) {
       // return error
       return res
         .status(400)
@@ -30,10 +46,12 @@ export const createCourse = async (req, res, next) => {
     const newCourse = new Course({
       title,
       description,
-      image,
       duration,
       instructor,
     });
+    if (uploadResult?.url) {
+      newCourse.image = uploadResult.url
+    }
     // save
     await newCourse.save();
     // send success message
